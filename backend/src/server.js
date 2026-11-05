@@ -1,15 +1,25 @@
 
+import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 
 import pool from "./config/database.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
 import tarefaRoutes from "./routes/tarefaRoutes.js";
 
-dotenv.config();
-
 const app = express();
+
+// Verificar variáveis de ambiente sem revelar os valores
+console.log(
+  "JWT_SECRET carregado:",
+  Boolean(process.env.JWT_SECRET)
+);
+
+console.log(
+  "DATABASE_URL carregado:",
+  Boolean(process.env.DATABASE_URL)
+);
 
 // Configuração do CORS
 app.use(cors({
