@@ -62,7 +62,7 @@ function App() {
 
     try {
       const resposta = await axios.post(
-        "http://localhost:3000/api/usuarios/login",
+      "https://taskflow-3hn9.onrender.com/api/usuarios/login",
         { email, senha }
       );
 
@@ -89,7 +89,7 @@ function App() {
 
     try {
       await axios.post(
-        "http://localhost:3000/api/usuarios/cadastro",
+        "https://taskflow-3hn9.onrender.com/api/usuarios/cadastro",
         { nome, email, senha }
       );
 

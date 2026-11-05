@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,13 +11,27 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// Configuração do CORS
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://SEU-DOMINIO-VERCEL.vercel.app"
+  ]
+}));
+
 app.use(express.json());
 
 // Verificar conexão com PostgreSQL
 pool.query("SELECT NOW()")
-  .then(() => console.log("PostgreSQL conectado com sucesso!"))
-  .catch((error) => console.error("Erro ao conectar ao PostgreSQL:", error.message));
+  .then(() => {
+    console.log("PostgreSQL conectado com sucesso!");
+  })
+  .catch((error) => {
+    console.error(
+      "Erro ao conectar ao PostgreSQL:",
+      error.message
+    );
+  });
 
 // Rota inicial
 app.get("/", (req, res) => {
