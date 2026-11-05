@@ -1,109 +1,61 @@
-import pool from "../config/database.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
-// CADASTRAR USUÁRIO
-export async function cadastrarUsuario(req, res) {
-  try {
-    const { nome, email, senha } = req.body;
+import "dotenv/config";
 
-    if (!nome || !email || !senha) {
-      return res.status(400).json({
-        mensagem: "Preencha nome, email e senha."
-      });
-    }
+import express from "express";
+import cors from "cors";
 
-    const usuarioExistente = await pool.query(
-      "SELECT id FROM usuarios WHERE email = $1",
-      [email]
+import pool from "./config/database.js";
+import usuarioRoutes from "./routes/usuarioRoutes.js";
+import tarefaRoutes from "./routes/tarefaRoutes.js";
+
+const app = express();
+
+// Configuração do CORS
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://taskflow-git-main-wiliams-projects-a77720a3.vercel.app",
+    "https://taskflow-9epdyjua5-wiliams-projects-a77720a3.vercel.app"
+  ]
+}));
+
+app.use(express.json());
+
+// Verificar conexão com PostgreSQL
+pool.query("SELECT NOW()")
+  .then(() => {
+    console.log("PostgreSQL conectado com sucesso!");
+  })
+  .catch((error) => {
+    console.error(
+      "Erro ao conectar ao PostgreSQL:",
+      error.message
     );
+  });
 
-    if (usuarioExistente.rows.length > 0) {
-      return res.status(409).json({
-        mensagem: "Este email já está cadastrado."
-      });
-    }
+// Rota inicial
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Bem-vindo à API do TaskFlow!"
+  });
+});
 
-    const senhaCriptografada = await bcrypt.hash(senha, 10);
+// Verificar funcionamento da API
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "TaskFlow API está funcionando!"
+  });
+});
 
-    const resultado = await pool.query(
-      `INSERT INTO usuarios (nome, email, senha)
-       VALUES ($1, $2, $3)
-       RETURNING id, nome, email`,
-      [nome, email, senhaCriptografada]
-    );
+// Rotas da aplicação
+app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/tarefas", tarefaRoutes);
 
-    return res.status(201).json({
-      mensagem: "Usuário cadastrado com sucesso!",
-      usuario: resultado.rows[0]
-    });
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
 
-  } catch (erro) {
-    console.error("Erro ao cadastrar usuário:", erro);
-
-    return res.status(500).json({
-      mensagem: "Erro interno ao cadastrar usuário."
-    });
-  }
-}
-
-// REALIZAR LOGIN
-export async function loginUsuario(req, res) {
-  try {
-    const { email, senha } = req.body;
-
-    if (!email || !senha) {
-      return res.status(400).json({
-        mensagem: "Informe email e senha."
-      });
-    }
-
-    const resultado = await pool.query(
-      "SELECT id, nome, email, senha FROM usuarios WHERE email = $1",
-      [email]
-    );
-
-    if (resultado.rows.length === 0) {
-      return res.status(401).json({
-        mensagem: "Email ou senha incorretos."
-      });
-    }
-
-    const usuario = resultado.rows[0];
-
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-
-    if (!senhaCorreta) {
-      return res.status(401).json({
-        mensagem: "Email ou senha incorretos."
-      });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET não configurado no .env");
-    }
-
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    return res.status(200).json({
-      mensagem: "Login realizado com sucesso!",
-      token,
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email
-      }
-    });
-
-  } catch (erro) {
-    console.error("Erro no login:", erro);
-
-    return res.status(500).json({
-      mensagem: "Erro interno ao realizar login."
-    });
-  }
-}
+app.listen(PORT, () => {
+  console.log(`TaskFlow API rodando na porta ${PORT}`);
+});
