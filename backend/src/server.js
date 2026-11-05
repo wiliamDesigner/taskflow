@@ -15,7 +15,8 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://SEU-DOMINIO-VERCEL.vercel.app"
+    "https://taskflow-git-main-wiliams-projects-a77720a3.vercel.app",
+    "https://taskflow-9epdyjua5-wiliams-projects-a77720a3.vercel.app"
   ]
 }));
 
