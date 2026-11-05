@@ -23,12 +23,12 @@ function App() {
 
   const token = localStorage.getItem("token");
 
-  const api = axios.create({
-    baseURL: "http://localhost:3000/api",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const api = axios.create({
+  baseURL: "https://taskflow-3hn9.onrender.com/api",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
   async function carregarTarefas() {
     try {
