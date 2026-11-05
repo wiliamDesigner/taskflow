@@ -1,4 +1,4 @@
-
+import pool from "../config/database.js";
 import "dotenv/config";
 
 import express from "express";
