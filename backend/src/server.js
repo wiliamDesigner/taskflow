@@ -22,12 +22,17 @@ console.log(
 );
 
 // Configuração do CORS
+const origensPermitidas = [
+  "http://localhost:5173",
+  "https://taskflow-git-main-wiliams-projects-a77720a3.vercel.app",
+  "https://taskflow-9epdyjua5-wiliams-projects-a77720a3.vercel.app",
+  "https://taskflow-cwty4a2pr-wiliams-projects-a77720a3.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://taskflow-git-main-wiliams-projects-a77720a3.vercel.app",
-    "https://taskflow-9epdyjua5-wiliams-projects-a77720a3.vercel.app"
-  ]
+  origin: origensPermitidas,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
@@ -63,6 +68,24 @@ app.get("/api/health", (req, res) => {
 // Rotas da aplicação
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/tarefas", tarefaRoutes);
+
+// Tratamento de rotas inexistentes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    mensagem: "Rota não encontrada."
+  });
+});
+
+// Tratamento de erros
+app.use((error, req, res, next) => {
+  console.error("Erro na API:", error);
+
+  res.status(500).json({
+    success: false,
+    mensagem: "Erro interno no servidor."
+  });
+});
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
